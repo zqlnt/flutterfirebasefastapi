@@ -123,26 +123,16 @@ dependencies:
 
 ## Deployment
 
-### Vercel Deployment
-1. Go to [vercel.com](https://vercel.com)
-2. Sign in with GitHub
-3. Click "New Project"
-4. Import your repository: `zqlnt/flutterfirebasefastapi`
-5. Add environment variables in Vercel dashboard
-6. Deploy automatically
+### Local Development
+The app is designed to run locally for development and testing purposes.
 
-### Environment Variables for Production
-Add these in Vercel dashboard:
+### Production Build
+To create a production build:
+```bash
+flutter build web --release
 ```
-FIREBASE_PROJECT_ID=your-firebase-project-id
-FIREBASE_API_KEY=your-firebase-api-key
-FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
-FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-FIREBASE_APP_ID=your-app-id
-FIREBASE_MEASUREMENT_ID=your-measurement-id
-MOCK_API_BASE_URL=https://mock-server-6yyu.onrender.com
-```
+
+This creates optimized web assets in the `build/web` directory that can be served by any web server.
 
 ## Troubleshooting
 
@@ -175,3 +165,4 @@ Enable debug logging by setting `DEBUG_MODE=true` in your `.env` file.
 
 ## Version History
 - Latest update: Setup instructions and configuration improvements
+- Deployment: Removed cloud deployment references, focused on local development

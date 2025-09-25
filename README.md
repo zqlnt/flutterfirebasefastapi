@@ -128,22 +128,16 @@ All sensitive configuration is stored in the `.env` file and loaded at runtime. 
 
 ## 🚀 Deployment
 
-### Vercel Deployment
-1. Connect your GitHub repository to Vercel
-2. Vercel will automatically detect it's a Flutter project
-3. Add environment variables in Vercel dashboard
-4. Deploy automatically on every push
+### Local Development
+The app is designed to run locally for development and testing purposes.
 
 ### Build Configuration
-The `vercel.json` file configures the build process:
-```json
-{
-  "buildCommand": "flutter build web --release",
-  "outputDirectory": "build/web",
-  "framework": "flutter",
-  "installCommand": "flutter pub get"
-}
+For production builds, use:
+```bash
+flutter build web --release
 ```
+
+This creates optimized web assets in the `build/web` directory.
 
 ## 🧪 Testing
 
@@ -201,3 +195,4 @@ Enable debug logging by setting `DEBUG_MODE=true` in your `.env` file.
 
 ## Version History
 - Latest update: Project cleanup and documentation improvements
+- Deployment: Focused on local development and testing
