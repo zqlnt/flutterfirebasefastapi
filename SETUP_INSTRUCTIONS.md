@@ -172,3 +172,6 @@ Enable debug logging by setting `DEBUG_MODE=true` in your `.env` file.
 - Check browser console for debug messages
 - Use Flutter Inspector for widget debugging
 - Test on different screen sizes for responsiveness
+
+## Version History
+- Latest update: Setup instructions and configuration improvements

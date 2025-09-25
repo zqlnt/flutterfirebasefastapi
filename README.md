@@ -198,3 +198,6 @@ This project is for educational and development purposes.
 
 ### Debug Mode
 Enable debug logging by setting `DEBUG_MODE=true` in your `.env` file.
+
+## Version History
+- Latest update: Project cleanup and documentation improvements

@@ -148,3 +148,6 @@ For production deployment (Vercel, Netlify, etc.):
 - **Check internet connection**: Ensure you can reach the mock server
 - **Verify base URL**: Ensure the URL is correct
 - **Test endpoints**: Use browser to test endpoints directly
+
+## Version History
+- Latest update: Configuration documentation and security improvements
