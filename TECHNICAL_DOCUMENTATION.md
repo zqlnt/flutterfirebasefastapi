@@ -1,5 +1,66 @@
 # Technical Documentation
 
+## Architecture Overview
+
+### High-Level Architecture
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Presentation Layer                       │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
+│  │   AuthScreen    │  │   HomeScreen    │  │   Widgets   │ │
+│  │                 │  │                 │  │             │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    Business Logic Layer                    │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
+│  │ FirebaseRest    │  │   MockApi       │  │  Provider  │ │
+│  │ AuthService     │  │   Service       │  │   State    │ │
+│  │                 │  │                 │  │ Management │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                      Data Layer                            │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
+│  │   Firebase      │  │   Mock API       │  │   Local     │ │
+│  │   REST API      │  │   Server         │  │   Storage   │ │
+│  │                 │  │                 │  │             │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Core Services Implementation
+
+### FirebaseRestAuthService
+Handles Firebase authentication using REST API calls.
+
+#### Key Methods
+```dart
+Future<bool> signIn(String email, String password)
+Future<bool> signUp(String email, String password)
+Future<bool> resetPassword(String email)
+void signOut()
+```
+
+#### Authentication Flow
+1. **User Input** → Email/password validation
+2. **API Request** → HTTP POST to Firebase Identity Toolkit
+3. **Response Processing** → JSON parsing and token extraction
+4. **State Update** → Provider notifies UI components
+5. **UI Navigation** → Route to appropriate screen
+
+### MockApiService
+Handles communication with external mock API server.
+
+#### Key Methods
+```dart
+Future<bool> testConnection()
+Future<Map<String, dynamic>> discoverEndpoints()
+Future<Map<String, dynamic>> getEmailMessages()
+Future<Map<String, dynamic>> getCalendarEvents()
+Future<Map<String, dynamic>> getAccounts()
+```
+
 ## Data Processing Pipeline
 
 ### HTTP Request Phase
@@ -99,9 +160,46 @@ Handles different API response structures:
 }
 ```
 
-### Error Handling
+## State Management
 
-#### Network Error Handling
+### Provider Pattern
+```dart
+class FirebaseRestAuthService extends ChangeNotifier {
+  bool _isAuthenticated = false;
+  String? _userEmail;
+  String? _idToken;
+  
+  bool get isAuthenticated => _isAuthenticated;
+  String? get userEmail => _userEmail;
+  
+  Future<bool> signIn(String email, String password) async {
+    // Authentication logic
+    _isAuthenticated = true;
+    notifyListeners(); // Notify UI of state change
+    return true;
+  }
+}
+```
+
+### UI State Updates
+```dart
+class AuthWrapper extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<FirebaseRestAuthService>(
+      builder: (context, authService, child) {
+        if (authService.isLoading) return const LoadingScreen();
+        if (authService.isAuthenticated) return const HomeScreen();
+        return const AuthScreen();
+      },
+    );
+  }
+}
+```
+
+## Error Handling
+
+### Network Error Handling
 ```dart
 try {
   final response = await _client.get(uri).timeout(
@@ -122,7 +220,7 @@ try {
 }
 ```
 
-#### Data Validation
+### Data Validation
 ```dart
 bool _validateEmailData(Map<String, dynamic> email) {
   return email.containsKey('sender') && 
@@ -132,73 +230,22 @@ bool _validateEmailData(Map<String, dynamic> email) {
 }
 ```
 
-### State Management
+## Performance Optimizations
 
-#### Authentication State
-```dart
-class FirebaseRestAuthService extends ChangeNotifier {
-  bool _isAuthenticated = false;
-  String? _userEmail;
-  String? _idToken;
-  
-  bool get isAuthenticated => _isAuthenticated;
-  String? get userEmail => _userEmail;
-  
-  Future<bool> signIn(String email, String password) async {
-    final response = await http.post(
-      Uri.parse(signInUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'email': email,
-        'password': password,
-        'returnSecureToken': true,
-      }),
-    );
-    
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      _idToken = data['idToken'];
-      _userEmail = data['email'];
-      _isAuthenticated = true;
-      notifyListeners();
-      return true;
-    }
-    return false;
-  }
-}
-```
+### Memory Management
+- **Data Caching**: Store fetched data in widget state
+- **Lazy Loading**: Only fetch data when requested
+- **Efficient Parsing**: Use `jsonDecode` with proper error handling
 
-#### UI State Updates
-```dart
-class AuthWrapper extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<FirebaseRestAuthService>(
-      builder: (context, authService, child) {
-        if (authService.isLoading) return const LoadingScreen();
-        if (authService.isAuthenticated) return const HomeScreen();
-        return const AuthScreen();
-      },
-    );
-  }
-}
-```
+### UI Rendering
+- **ListView.builder**: Efficient rendering for large datasets
+- **Text Truncation**: Prevent UI overflow with proper text handling
+- **Card Reuse**: Reusable components for different data types
+- **Loading States**: Provide visual feedback during operations
 
-### Performance Optimizations
+## Configuration Management
 
-#### Memory Management
-- Data caching in widget state
-- Lazy loading for API calls
-- Efficient JSON parsing
-
-#### UI Rendering
-- ListView.builder for large datasets
-- Text truncation for overflow prevention
-- Card reuse for different data types
-
-### Configuration Management
-
-#### Environment Variables
+### Environment Variables
 ```dart
 class Environment {
   static String get firebaseProjectId => dotenv.env['FIREBASE_PROJECT_ID'] ?? '';
@@ -207,22 +254,22 @@ class Environment {
 }
 ```
 
-#### Security Implementation
-- Environment variables for sensitive data
-- .gitignore excludes .env file
-- Input validation for all user inputs
-- HTTPS-only API calls
-- Secure error messages
+### Security Implementation
+- **Environment Variables**: All sensitive data stored in `.env` file
+- **Git Ignore**: `.env` file excluded from version control
+- **Input Validation**: All user inputs validated before processing
+- **Error Handling**: Secure error messages without sensitive data exposure
+- **HTTPS Only**: All API calls use HTTPS endpoints
 
-### API Integration
+## API Integration
 
-#### Firebase REST API
+### Firebase REST API
 ```dart
 static String get signInUrl => 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${Environment.firebaseApiKey}';
 static String get signUpUrl => 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${Environment.firebaseApiKey}';
 ```
 
-#### Mock Server Integration
+### Mock Server Integration
 ```dart
 static String get baseUrl => 'https://mock-server-6yyu.onrender.com';
 
@@ -233,7 +280,7 @@ GET /accounts
 GET /health
 ```
 
-### Data Flow Summary
+## Data Flow Summary
 
 1. **User Action** → Button click triggers API call
 2. **HTTP Request** → MockApiService makes request to Render server

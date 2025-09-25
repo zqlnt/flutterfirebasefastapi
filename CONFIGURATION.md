@@ -1,16 +1,13 @@
 # Configuration Guide
 
-This document explains how to configure the Infinity Link application with proper environment variables and security settings.
+## Environment Variables
 
-## 🔧 Environment Configuration
+The application uses environment variables for configuration. All sensitive data is stored in a `.env` file and loaded at runtime.
 
-### Firebase Configuration
+### Required Variables
 
-The app uses the official Firebase SDK for authentication. Configuration is managed through environment variables loaded from a `.env` file.
-
-**Environment Variables (.env file)**:
+#### Firebase Configuration
 ```env
-# Firebase Configuration
 FIREBASE_PROJECT_ID=your-firebase-project-id
 FIREBASE_API_KEY=your-firebase-api-key
 FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
@@ -20,177 +17,134 @@ FIREBASE_APP_ID=your-app-id
 FIREBASE_MEASUREMENT_ID=your-measurement-id
 ```
 
-**Configuration Loading**:
-The `Environment` class in `lib/config/environment.dart` loads these values from the `.env` file with fallback values for development.
-
-### Mock API Configuration
-
-The app connects to a mock server for testing purposes:
-```dart
-static const String mockApiBaseUrl = 'https://mock-server-6yyu.onrender.com';
+#### Mock API Configuration
+```env
+MOCK_API_BASE_URL=https://mock-server-6yyu.onrender.com
 ```
 
-## 🔒 Security Best Practices
+#### Development Settings
+```env
+DEBUG_MODE=true
+ENABLE_LOGGING=true
+```
 
-### Development vs Production
-
-**Development (Current Setup)**:
-- API keys are stored in the codebase for easy development
-- Configuration is hardcoded in the `Environment` class
-- Debug logging is enabled
-
-**Production (Recommended)**:
-- Move API keys to environment variables
-- Use secure configuration management
-- Disable debug logging
-- Implement proper secrets handling
-
-### Environment Variables (Recommended for Production)
+### Environment File Structure
 
 Create a `.env` file in the project root:
 ```env
 # Firebase Configuration
-FIREBASE_PROJECT_ID=your-firebase-project-id
-FIREBASE_API_KEY=your-firebase-api-key
-FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+FIREBASE_PROJECT_ID=infinity-link-878fe
+FIREBASE_API_KEY=your-actual-api-key
+FIREBASE_AUTH_DOMAIN=infinity-link-878fe.firebaseapp.com
+FIREBASE_STORAGE_BUCKET=infinity-link-878fe.firebasestorage.app
+FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+FIREBASE_APP_ID=your-app-id
+FIREBASE_MEASUREMENT_ID=your-measurement-id
 
 # Mock API Configuration
 MOCK_API_BASE_URL=https://mock-server-6yyu.onrender.com
 
 # Development Settings
-DEBUG_MODE=false
-ENABLE_LOGGING=false
+DEBUG_MODE=true
+ENABLE_LOGGING=true
 ```
 
-### Using Environment Variables
+## Configuration Loading
 
-To use environment variables in production, you would need to:
+The `Environment` class in `lib/config/environment.dart` loads these values:
 
-1. Add the `flutter_dotenv` package to `pubspec.yaml`:
-```yaml
-dependencies:
-  flutter_dotenv: ^5.1.0
-```
-
-2. Load environment variables in `main.dart`:
-```dart
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Load environment variables
-  await dotenv.load(fileName: ".env");
-  
-  // Initialize Firebase and the app
-  final authService = FirebaseAuthService();
-  await authService.initialize();
-  
-  runApp(MyApp(authService: authService));
-}
-```
-
-3. Update the `Environment` class to use environment variables:
 ```dart
 class Environment {
+  /// Firebase project configuration
   static String get firebaseProjectId => dotenv.env['FIREBASE_PROJECT_ID'] ?? '';
   static String get firebaseApiKey => dotenv.env['FIREBASE_API_KEY'] ?? '';
   static String get firebaseAuthDomain => dotenv.env['FIREBASE_AUTH_DOMAIN'] ?? '';
-  static String get mockApiBaseUrl => dotenv.env['MOCK_API_BASE_URL'] ?? '';
+  static String get firebaseStorageBucket => dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? '';
+  static String get firebaseMessagingSenderId => dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '';
+  static String get firebaseAppId => dotenv.env['FIREBASE_APP_ID'] ?? '';
+  static String get firebaseMeasurementId => dotenv.env['FIREBASE_MEASUREMENT_ID'] ?? '';
+  
+  /// Mock API configuration
+  static String get mockApiBaseUrl => dotenv.env['MOCK_API_BASE_URL'] ?? 'https://mock-server-6yyu.onrender.com';
+  
+  /// Development settings
+  static bool get debugMode => dotenv.env['DEBUG_MODE']?.toLowerCase() == 'true' || true;
+  static bool get enableLogging => dotenv.env['ENABLE_LOGGING']?.toLowerCase() == 'true' || true;
 }
 ```
 
-## 🚀 Firebase Setup
+## Firebase Setup
 
-### Creating a Firebase Project
-
-1. Go to the [Firebase Console](https://console.firebase.google.com/)
+### 1. Create Firebase Project
+1. Go to [Firebase Console](https://console.firebase.google.com)
 2. Click "Create a project"
-3. Enter project name: "Infinity Link"
+3. Enter project name
 4. Enable Google Analytics (optional)
-5. Create the project
 
-### Getting Firebase Configuration
-
-1. In the Firebase Console, go to Project Settings
-2. Scroll down to "Your apps" section
-3. Click "Add app" and select "Web" (</>) icon
-4. Register your app with a nickname
-5. Copy the configuration values:
-   - `apiKey`
-   - `authDomain`
-   - `projectId`
-
-### Enabling Authentication
-
-1. In the Firebase Console, go to "Authentication"
+### 2. Enable Authentication
+1. In Firebase Console, go to "Authentication"
 2. Click "Get started"
 3. Go to "Sign-in method" tab
 4. Enable "Email/Password" provider
-5. Save the configuration
+5. Click "Save"
 
-## 🔐 Security Considerations
+### 3. Get Project Configuration
+1. Go to Project Settings (gear icon)
+2. Scroll down to "Your apps" section
+3. Click "Add app" → Web app
+4. Register app with a nickname
+5. Copy the configuration values
 
-### API Key Protection
-
-**Never commit API keys to version control**:
-- Add `.env` to `.gitignore`
-- Use environment variables in production
-- Implement proper secrets management
-- Regular security audits
-
-### Firebase Security Rules
-
-Configure Firebase Security Rules for your project:
-```javascript
-// Firestore Security Rules
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Allow read/write access to authenticated users only
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
+### 4. Add to Environment File
+Copy the configuration values to your `.env` file:
+```env
+FIREBASE_PROJECT_ID=your-actual-project-id
+FIREBASE_API_KEY=your-actual-api-key
+FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+FIREBASE_APP_ID=your-app-id
+FIREBASE_MEASUREMENT_ID=your-measurement-id
 ```
 
-### HTTPS Only
+## Mock API Configuration
 
-Ensure all API calls use HTTPS:
-- Firebase SDK automatically uses HTTPS
-- Mock API server uses HTTPS
-- No HTTP requests in production
+The app connects to a mock server at `https://mock-server-6yyu.onrender.com`. No additional configuration required.
 
-## 📝 Configuration Files
+### Available Endpoints
+- **Email Messages**: `GET /db/email/messages`
+- **Calendar Events**: `GET /db/calendar/events`
+- **Gmail Accounts**: `GET /accounts`
+- **Health Check**: `GET /health`
 
-### Current Files
+## Security
 
-- `lib/config/environment.dart` - Main configuration
-- `lib/config/app_config.dart` - Legacy configuration (can be removed)
-- `.gitignore` - Excludes sensitive files from version control
+### Environment File Security
+- **Never commit `.env` file** to version control
+- **Use `.gitignore`** to exclude sensitive files
+- **Use different values** for development and production
 
-### Recommended Structure
+### Production Deployment
+For production deployment (Vercel, Netlify, etc.):
+1. Add environment variables in the platform's dashboard
+2. Use production Firebase project configuration
+3. Ensure all variables are properly set
 
-```
-lib/
-├── config/
-│   ├── environment.dart      # Environment configuration
-│   └── firebase_options.dart # Firebase configuration (auto-generated)
-├── services/
-│   ├── firebase_auth_service.dart    # Firebase SDK authentication
-│   └── mock_api_service.dart         # Mock API integration
-└── ...
-```
+## Troubleshooting
 
-## 🚨 Important Notes
+### Environment Variables Not Loading
+- **Check file location**: Ensure `.env` file is in project root
+- **Check file format**: Ensure no spaces around `=`
+- **Check file encoding**: Use UTF-8 encoding
+- **Restart app**: After changing environment variables
 
-1. **Development**: Current setup is fine for development and testing
-2. **Production**: Must implement proper environment variable handling
-3. **Security**: Never commit API keys to version control
-4. **Updates**: Keep Firebase SDK and dependencies updated
-5. **Monitoring**: Monitor authentication and API usage in production
+### Firebase Configuration Issues
+- **Verify project ID**: Ensure it matches your Firebase project
+- **Check API key**: Ensure it's the correct web API key
+- **Verify domain**: Ensure auth domain is correct
+- **Test authentication**: Try signing in with test credentials
 
----
-
-**Infinity Link** - Proper configuration and security setup for production deployment.
+### Mock API Issues
+- **Check internet connection**: Ensure you can reach the mock server
+- **Verify base URL**: Ensure the URL is correct
+- **Test endpoints**: Use browser to test endpoints directly
