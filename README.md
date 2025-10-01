@@ -2,7 +2,7 @@
 
 A Flutter web application demonstrating Firebase authentication and mock API integration. Built for testing and development purposes with a clean, modern interface.
 
-## 🚀 Features
+## Features
 
 - **Firebase Authentication** - Secure user login/registration
 - **Mock API Integration** - Real-time data fetching from external server
@@ -10,7 +10,7 @@ A Flutter web application demonstrating Firebase authentication and mock API int
 - **State Management** - Provider pattern for efficient state handling
 - **Environment Configuration** - Secure configuration management
 
-## 📋 Project Overview
+## Project Overview
 
 This application showcases modern Flutter web development practices:
 
@@ -20,7 +20,7 @@ This application showcases modern Flutter web development practices:
 - **Error Handling**: Comprehensive error handling and user feedback
 - **Security**: Environment-based configuration with proper secret management
 
-## 🏗️ Architecture
+## Architecture
 
 ### Core Components
 ```
@@ -49,7 +49,7 @@ lib/
 4. **UI Rendering** → Data displayed in Material Design components
 5. **State Updates** → Provider notifies UI of state changes
 
-## 🔧 Setup Instructions
+## Setup Instructions
 
 ### Prerequisites
 - Flutter SDK (latest stable version)
@@ -97,7 +97,7 @@ lib/
 ### Mock API Server
 The app connects to a mock server at `https://mock-server-6yyu.onrender.com` for data fetching.
 
-## 📊 API Integration
+## API Integration
 
 ### Firebase Authentication
 - **Sign In**: `POST https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword`
@@ -126,7 +126,7 @@ dependencies:
 ### Environment Variables
 All sensitive configuration is stored in the `.env` file and loaded at runtime. The `.env` file is excluded from version control.
 
-## 🚀 Deployment
+## Deployment
 
 ### Local Development
 The app is designed to run locally for development and testing purposes.
@@ -193,6 +193,74 @@ This project is for educational and development purposes.
 ### Debug Mode
 Enable debug logging by setting `DEBUG_MODE=true` in your `.env` file.
 
+## API Discovery Process
+
+### How I Found the Messages API Endpoint
+
+When building the mock data integration, I needed to discover what endpoints were available on the Render server. Here's how I approached it:
+
+#### 1. **Initial Connection Testing**
+I started by testing basic connectivity to the mock server:
+```dart
+// Test basic connection to base URL
+final response = await _client.get(Uri.parse('https://mock-server-6yyu.onrender.com'));
+```
+
+#### 2. **Endpoint Discovery Strategy**
+I implemented an intelligent endpoint discovery system that tests common REST API patterns:
+```dart
+// Common endpoint patterns to test
+final endpointsToTest = [
+  '/db/email/messages',    // Database email messages
+  '/db/calendar/events',   // Database calendar events
+  '/accounts',             // User accounts
+  '/inbox',                // Inbox messages
+  '/health',               // Server health
+];
+```
+
+#### 3. **Messages API Discovery**
+Through systematic testing, I discovered that `/db/email/messages` returned the most comprehensive email data:
+
+**Raw API Response Structure:**
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "sender": "john.doe@example.com",
+      "subject": "Important Meeting Tomorrow",
+      "snippet": "Hi team, we have an important meeting...",
+      "received_at": "2024-01-15T10:30:00Z"
+    }
+  ],
+  "nextPageToken": "NTA="
+}
+```
+
+#### 4. **Data Processing Implementation**
+I then implemented intelligent data processing to handle different response formats:
+```dart
+int _determineItemCount(dynamic data) {
+  if (data is List) return data.length;
+  if (data is Map) {
+    if (data.containsKey('items') && data['items'] is List) {
+      return data['items'].length;  // Found 50 messages!
+    }
+  }
+  return 1;
+}
+```
+
+#### 5. **Result**
+The discovery process revealed that the mock server provides:
+- **50 email messages** with full metadata
+- **Pagination support** with `nextPageToken`
+- **Rich data structure** including sender, subject, snippets, and timestamps
+
+This systematic approach allowed me to build a robust data fetching system that intelligently handles different API response formats.
+
 ## Version History
 - Latest update: Project cleanup and documentation improvements
 - Deployment: Focused on local development and testing
+- API Discovery: Documented the process of finding and implementing the messages endpoint

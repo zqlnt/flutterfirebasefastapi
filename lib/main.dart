@@ -16,9 +16,9 @@ void main() async {
   // Load environment variables from .env file
   try {
     await dotenv.load(fileName: ".env");
-    debugPrint('✅ Environment variables loaded successfully');
+    debugPrint('Environment variables loaded successfully');
   } catch (e) {
-    debugPrint('⚠️ Could not load .env file, using fallback values: $e');
+    debugPrint('Could not load .env file, using fallback values: $e');
   }
 
   // Initialize the app

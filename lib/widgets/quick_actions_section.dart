@@ -229,3 +229,4 @@ class QuickActionsSection extends StatelessWidget {
     );
   }
 }
+

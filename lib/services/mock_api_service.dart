@@ -25,8 +25,8 @@ class MockApiService {
   /// Returns [true] if connection is successful, [false] otherwise.
   Future<bool> testConnection() async {
     try {
-      debugPrint('🔗 Testing connection to mock API...');
-      debugPrint('🌐 URL: $baseUrl');
+      debugPrint('Testing connection to mock API...');
+      debugPrint('URL: $baseUrl');
       
       // Make a simple GET request to test connectivity
       final response = await _client
@@ -40,40 +40,40 @@ class MockApiService {
           .timeout(
             const Duration(seconds: 10),
             onTimeout: () {
-              debugPrint('⏰ Connection timeout after 10 seconds');
+              debugPrint('Connection timeout after 10 seconds');
               throw TimeoutException('Connection timeout', const Duration(seconds: 10));
             },
           );
       
-      debugPrint('📡 Response Status: ${response.statusCode}');
-      debugPrint('📡 Response Headers: ${response.headers}');
-      debugPrint('📡 Response Body: ${response.body}');
+      debugPrint('Response Status: ${response.statusCode}');
+      debugPrint('Response Headers: ${response.headers}');
+      debugPrint('Response Body: ${response.body}');
       
       // For mock APIs, even 404 means the server is reachable
       // We just need to confirm the server responded
       if (response.statusCode >= 200 && response.statusCode < 500) {
-        debugPrint('✅ Mock API server is reachable!');
-        debugPrint('ℹ️  Note: 404 is normal for root endpoint - server is working');
+        debugPrint('Mock API server is reachable!');
+        debugPrint('Note: 404 is normal for root endpoint - server is working');
         return true;
       } else {
-        debugPrint('❌ Mock API server error: ${response.statusCode}');
+        debugPrint('Mock API server error: ${response.statusCode}');
         return false;
       }
       
     } on TimeoutException catch (e) {
-      debugPrint('⏰ Connection timeout: $e');
+      debugPrint('Connection timeout: $e');
       return false;
     } on SocketException catch (e) {
-      debugPrint('🌐 Network error: $e');
+      debugPrint('Network error: $e');
       return false;
     } on HttpException catch (e) {
-      debugPrint('📡 HTTP error: $e');
+      debugPrint('HTTP error: $e');
       return false;
     } on FormatException catch (e) {
-      debugPrint('🔧 Format error: $e');
+      debugPrint('Format error: $e');
       return false;
     } catch (e) {
-      debugPrint('❌ Unexpected error: $e');
+      debugPrint('Unexpected error: $e');
       return false;
     }
   }
@@ -82,7 +82,7 @@ class MockApiService {
   Future<bool> testEndpoint(String endpoint) async {
     try {
       final url = '$baseUrl$endpoint';
-      debugPrint('🔗 Testing endpoint: $url');
+      debugPrint('Testing endpoint: $url');
       
       final response = await _client
           .get(
@@ -94,13 +94,13 @@ class MockApiService {
           )
           .timeout(const Duration(seconds: 10));
       
-      debugPrint('📡 Endpoint Response: ${response.statusCode}');
-      debugPrint('📡 Endpoint Body: ${response.body}');
+      debugPrint('Endpoint Response: ${response.statusCode}');
+      debugPrint('Endpoint Body: ${response.body}');
       
       return response.statusCode >= 200 && response.statusCode < 300;
       
     } catch (e) {
-      debugPrint('❌ Endpoint test failed: $e');
+      debugPrint('Endpoint test failed: $e');
       return false;
     }
   }
@@ -120,7 +120,7 @@ class MockApiService {
   /// Discover available endpoints on the mock API
   /// Returns a map of endpoint paths and their response details
   Future<Map<String, Map<String, dynamic>>> discoverEndpoints() async {
-    debugPrint('🔍 Starting endpoint discovery...');
+    debugPrint('Starting endpoint discovery...');
     
     // Common REST API endpoints to test
     final endpointsToTest = [
@@ -148,7 +148,7 @@ class MockApiService {
     for (final endpoint in endpointsToTest) {
       try {
         final url = '$baseUrl$endpoint';
-        debugPrint('🔗 Testing: $url');
+        debugPrint('Testing: $url');
         
         final response = await _client
             .get(
@@ -170,11 +170,11 @@ class MockApiService {
         
         results[endpoint] = result;
         
-        debugPrint('📡 $endpoint: ${response.statusCode} (${response.headers['content-type']})');
+        debugPrint('$endpoint: ${response.statusCode} (${response.headers['content-type']})');
         
         // Only log body for successful responses to avoid spam
         if (response.statusCode >= 200 && response.statusCode < 300) {
-          debugPrint('📄 $endpoint body: ${response.body.length > 200 ? '${response.body.substring(0, 200)}...' : response.body}');
+          debugPrint('$endpoint body: ${response.body.length > 200 ? '${response.body.substring(0, 200)}...' : response.body}');
         }
         
       } catch (e) {
@@ -185,7 +185,7 @@ class MockApiService {
           'success': false,
           'body': 'Error: $e',
         };
-        debugPrint('❌ $endpoint: Error - $e');
+        debugPrint('$endpoint: Error - $e');
       }
     }
     
@@ -195,10 +195,10 @@ class MockApiService {
         .map((e) => e.key)
         .toList();
     
-    debugPrint('✅ Discovery complete!');
-    debugPrint('📊 Total endpoints tested: ${results.length}');
-    debugPrint('✅ Successful endpoints: ${successfulEndpoints.length}');
-    debugPrint('🎯 Available endpoints: $successfulEndpoints');
+    debugPrint('Discovery complete!');
+    debugPrint('Total endpoints tested: ${results.length}');
+    debugPrint('Successful endpoints: ${successfulEndpoints.length}');
+    debugPrint('Available endpoints: $successfulEndpoints');
     
     return results;
   }
@@ -228,7 +228,7 @@ class MockApiService {
   /// Get Gmail accounts
   Future<Map<String, dynamic>> getAccounts() async {
     try {
-      debugPrint('📧 Fetching Gmail accounts...');
+      debugPrint('Fetching Gmail accounts...');
       final response = await _client
           .get(
             Uri.parse('$baseUrl/accounts'),
@@ -239,16 +239,16 @@ class MockApiService {
           )
           .timeout(const Duration(seconds: 10));
       
-      debugPrint('📡 Accounts Response: ${response.statusCode}');
+      debugPrint('Accounts Response: ${response.statusCode}');
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        debugPrint('✅ Accounts fetched successfully: ${data.length} accounts');
+        debugPrint('Accounts fetched successfully: ${data.length} accounts');
         
         // Debug: Print the structure of the first account
         if (data is List && data.isNotEmpty) {
-          debugPrint('📊 First account structure: ${data[0]}');
-          debugPrint('📊 Account keys: ${data[0].keys.toList()}');
+          debugPrint('First account structure: ${data[0]}');
+          debugPrint('Account keys: ${data[0].keys.toList()}');
         }
         
         return {
@@ -260,7 +260,7 @@ class MockApiService {
         throw Exception('Failed to fetch accounts: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('❌ Error fetching accounts: $e');
+      debugPrint('Error fetching accounts: $e');
       return {
         'success': false,
         'error': e.toString(),
@@ -273,7 +273,7 @@ class MockApiService {
   /// Get inbox messages
   Future<Map<String, dynamic>> getInboxMessages() async {
     try {
-      debugPrint('📬 Fetching inbox messages...');
+      debugPrint('Fetching inbox messages...');
       final response = await _client
           .get(
             Uri.parse('$baseUrl/emails/inbox'),
@@ -284,11 +284,11 @@ class MockApiService {
           )
           .timeout(const Duration(seconds: 10));
       
-      debugPrint('📡 Inbox Response: ${response.statusCode}');
+      debugPrint('Inbox Response: ${response.statusCode}');
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        debugPrint('✅ Inbox messages fetched successfully: ${data.length} messages');
+        debugPrint('Inbox messages fetched successfully: ${data.length} messages');
         return {
           'success': true,
           'data': data,
@@ -298,7 +298,7 @@ class MockApiService {
         throw Exception('Failed to fetch inbox messages: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('❌ Error fetching inbox messages: $e');
+      debugPrint('Error fetching inbox messages: $e');
       return {
         'success': false,
         'error': e.toString(),
@@ -311,7 +311,7 @@ class MockApiService {
   /// Get email messages from database
   Future<Map<String, dynamic>> getEmailMessages() async {
     try {
-      debugPrint('📧 Fetching email messages from DB...');
+      debugPrint('Fetching email messages from DB...');
       final response = await _client
           .get(
             Uri.parse('$baseUrl/db/email/messages'),
@@ -322,11 +322,11 @@ class MockApiService {
           )
           .timeout(const Duration(seconds: 10));
       
-      debugPrint('📡 Email Messages Response: ${response.statusCode}');
+      debugPrint('Email Messages Response: ${response.statusCode}');
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        debugPrint('📄 Raw email response: ${response.body}');
+        debugPrint('Raw email response: ${response.body}');
         
         // Handle different response formats
         int itemCount = 0;
@@ -349,10 +349,10 @@ class MockApiService {
           itemsData = data;
         }
         
-        debugPrint('✅ Email messages fetched successfully: $itemCount messages');
-        debugPrint('📊 Response structure: ${data.runtimeType}');
+        debugPrint('Email messages fetched successfully: $itemCount messages');
+        debugPrint('Response structure: ${data.runtimeType}');
         if (data is Map) {
-          debugPrint('📊 Map keys: ${data.keys.toList()}');
+          debugPrint('Map keys: ${data.keys.toList()}');
         }
         
         return {
@@ -365,7 +365,7 @@ class MockApiService {
         throw Exception('Failed to fetch email messages: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('❌ Error fetching email messages: $e');
+      debugPrint('Error fetching email messages: $e');
       return {
         'success': false,
         'error': e.toString(),
@@ -378,7 +378,7 @@ class MockApiService {
   /// Get calendar events from database
   Future<Map<String, dynamic>> getCalendarEvents() async {
     try {
-      debugPrint('📅 Fetching calendar events from DB...');
+      debugPrint('Fetching calendar events from DB...');
       final response = await _client
           .get(
             Uri.parse('$baseUrl/db/calendar/events'),
@@ -389,11 +389,11 @@ class MockApiService {
           )
           .timeout(const Duration(seconds: 10));
       
-      debugPrint('📡 Calendar Events Response: ${response.statusCode}');
+      debugPrint('Calendar Events Response: ${response.statusCode}');
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        debugPrint('📄 Raw calendar response: ${response.body}');
+        debugPrint('Raw calendar response: ${response.body}');
         
         // Handle different response formats
         int itemCount = 0;
@@ -416,10 +416,10 @@ class MockApiService {
           itemsData = data;
         }
         
-        debugPrint('✅ Calendar events fetched successfully: $itemCount events');
-        debugPrint('📊 Response structure: ${data.runtimeType}');
+        debugPrint('Calendar events fetched successfully: $itemCount events');
+        debugPrint('Response structure: ${data.runtimeType}');
         if (data is Map) {
-          debugPrint('📊 Map keys: ${data.keys.toList()}');
+          debugPrint('Map keys: ${data.keys.toList()}');
         }
         
         return {
@@ -432,12 +432,104 @@ class MockApiService {
         throw Exception('Failed to fetch calendar events: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('❌ Error fetching calendar events: $e');
+      debugPrint('Error fetching calendar events: $e');
       return {
         'success': false,
         'error': e.toString(),
         'data': null,
         'count': 0,
+      };
+    }
+  }
+  
+  /// Get individual email by string ID (inbox format)
+  /// Fetches from /emails/{id} endpoint which returns HTML body with clean text and attachments
+  Future<Map<String, dynamic>> getEmailByStringId(String id) async {
+    try {
+      debugPrint('Fetching email by string ID: $id');
+      final response = await _client
+          .get(
+            Uri.parse('$baseUrl/emails/$id'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          )
+          .timeout(const Duration(seconds: 10));
+      
+      debugPrint('Email String ID Response: ${response.statusCode}');
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        debugPrint('Email fetched successfully by string ID');
+        debugPrint('Email structure: ${data.keys.toList()}');
+        
+        return {
+          'success': true,
+          'data': data,
+          'format': 'inbox',
+        };
+      } else if (response.statusCode == 404) {
+        return {
+          'success': false,
+          'error': 'Email not found with ID: $id',
+          'data': null,
+        };
+      } else {
+        throw Exception('Failed to fetch email by string ID: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching email by string ID: $e');
+      return {
+        'success': false,
+        'error': e.toString(),
+        'data': null,
+      };
+    }
+  }
+  
+  /// Get individual email by integer ID (database format)
+  /// Fetches from /db/email/messages/{id} endpoint which returns full database schema
+  Future<Map<String, dynamic>> getEmailByIntId(int id) async {
+    try {
+      debugPrint('Fetching email by integer ID: $id');
+      final response = await _client
+          .get(
+            Uri.parse('$baseUrl/db/email/messages/$id'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          )
+          .timeout(const Duration(seconds: 10));
+      
+      debugPrint('Email Int ID Response: ${response.statusCode}');
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        debugPrint('Email fetched successfully by integer ID');
+        debugPrint('Email structure: ${data.keys.toList()}');
+        
+        return {
+          'success': true,
+          'data': data,
+          'format': 'database',
+        };
+      } else if (response.statusCode == 404) {
+        return {
+          'success': false,
+          'error': 'Email not found with ID: $id',
+          'data': null,
+        };
+      } else {
+        throw Exception('Failed to fetch email by integer ID: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching email by integer ID: $e');
+      return {
+        'success': false,
+        'error': e.toString(),
+        'data': null,
       };
     }
   }

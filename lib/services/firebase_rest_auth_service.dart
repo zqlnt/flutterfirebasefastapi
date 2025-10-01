@@ -46,10 +46,10 @@ class FirebaseRestAuthService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      debugPrint('🔥 REAL Firebase Email Sign-In via REST API');
-      debugPrint('📧 Email: $email');
-      debugPrint('🔑 Project: $projectId');
-      debugPrint('🔗 URL: $signInUrl');
+      debugPrint('Firebase Email Sign-In via REST API');
+      debugPrint('Email: $email');
+      debugPrint('Project: $projectId');
+      debugPrint('URL: $signInUrl');
       
       final response = await http.post(
         Uri.parse(signInUrl),
@@ -61,8 +61,8 @@ class FirebaseRestAuthService extends ChangeNotifier {
         }),
       );
       
-      debugPrint('📡 Firebase API Response: ${response.statusCode}');
-      debugPrint('📡 Response body: ${response.body}');
+      debugPrint('Firebase API Response: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
       
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -73,16 +73,16 @@ class FirebaseRestAuthService extends ChangeNotifier {
         _displayName = data['displayName'] ?? email.split('@')[0];
         _idToken = data['idToken'];
         
-        debugPrint('✅ REAL Firebase email sign-in successful!');
-        debugPrint('✅ User ID: $_userId');
-        debugPrint('✅ Email: $_userEmail');
-        debugPrint('✅ ID Token: ${_idToken?.substring(0, 20)}...');
+        debugPrint('Firebase email sign-in successful!');
+        debugPrint('User ID: $_userId');
+        debugPrint('Email: $_userEmail');
+        debugPrint('ID Token: ${_idToken?.substring(0, 20)}...');
       } else {
         final error = json.decode(response.body);
         throw Exception('Firebase Error: ${error['error']['message']}');
       }
     } catch (e) {
-      debugPrint('❌ Firebase sign-in error: $e');
+      debugPrint('Firebase sign-in error: $e');
       rethrow;
     }
 
@@ -101,10 +101,10 @@ class FirebaseRestAuthService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      debugPrint('🔥 REAL Firebase Email Sign-Up via REST API');
-      debugPrint('📧 Email: $email');
-      debugPrint('🔑 Project: $projectId');
-      debugPrint('🔗 URL: $signUpUrl');
+      debugPrint('Firebase Email Sign-Up via REST API');
+      debugPrint('Email: $email');
+      debugPrint('Project: $projectId');
+      debugPrint('URL: $signUpUrl');
       
       final response = await http.post(
         Uri.parse(signUpUrl),
@@ -116,8 +116,8 @@ class FirebaseRestAuthService extends ChangeNotifier {
         }),
       );
       
-      debugPrint('📡 Firebase API Response: ${response.statusCode}');
-      debugPrint('📡 Response body: ${response.body}');
+      debugPrint('Firebase API Response: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
       
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -128,16 +128,16 @@ class FirebaseRestAuthService extends ChangeNotifier {
         _displayName = data['displayName'] ?? email.split('@')[0];
         _idToken = data['idToken'];
         
-        debugPrint('✅ REAL Firebase email sign-up successful!');
-        debugPrint('✅ User ID: $_userId');
-        debugPrint('✅ Email: $_userEmail');
-        debugPrint('✅ ID Token: ${_idToken?.substring(0, 20)}...');
+        debugPrint('Firebase email sign-up successful!');
+        debugPrint('User ID: $_userId');
+        debugPrint('Email: $_userEmail');
+        debugPrint('ID Token: ${_idToken?.substring(0, 20)}...');
       } else {
         final error = json.decode(response.body);
         throw Exception('Firebase Error: ${error['error']['message']}');
       }
     } catch (e) {
-      debugPrint('❌ Firebase sign-up error: $e');
+      debugPrint('Firebase sign-up error: $e');
       rethrow;
     }
 
@@ -154,10 +154,10 @@ class FirebaseRestAuthService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      debugPrint('🌐 Google Sign-In not yet implemented');
+      debugPrint('Google Sign-In not yet implemented');
       throw Exception('Google Sign-In will be implemented in a future update');
     } catch (e) {
-      debugPrint('❌ Google Sign-In error: $e');
+      debugPrint('Google Sign-In error: $e');
       rethrow;
     }
 
@@ -175,10 +175,10 @@ class FirebaseRestAuthService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      debugPrint('🔥 REAL Firebase Password Reset via REST API');
-      debugPrint('📧 Email: $email');
-      debugPrint('🔑 Project: $projectId');
-      debugPrint('🔗 URL: $passwordResetUrl');
+      debugPrint('Firebase Password Reset via REST API');
+      debugPrint('Email: $email');
+      debugPrint('Project: $projectId');
+      debugPrint('URL: $passwordResetUrl');
       
       final response = await http.post(
         Uri.parse(passwordResetUrl),
@@ -189,17 +189,17 @@ class FirebaseRestAuthService extends ChangeNotifier {
         }),
       );
       
-      debugPrint('📡 Firebase API Response: ${response.statusCode}');
-      debugPrint('📡 Response body: ${response.body}');
+      debugPrint('Firebase API Response: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
       
       if (response.statusCode == 200) {
-        debugPrint('✅ REAL password reset email sent via Firebase!');
+        debugPrint('Password reset email sent via Firebase!');
       } else {
         final error = json.decode(response.body);
         throw Exception('Firebase Error: ${error['error']['message']}');
       }
     } catch (e) {
-      debugPrint('❌ Firebase password reset error: $e');
+      debugPrint('Firebase password reset error: $e');
       rethrow;
     }
 
@@ -215,7 +215,7 @@ class FirebaseRestAuthService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      debugPrint('🔥 REAL Firebase Sign Out');
+      debugPrint('Firebase Sign Out');
       
       await Future.delayed(const Duration(milliseconds: 500));
       
@@ -225,9 +225,9 @@ class FirebaseRestAuthService extends ChangeNotifier {
       _displayName = null;
       _idToken = null;
 
-      debugPrint('✅ REAL Firebase sign-out successful!');
+      debugPrint('Firebase sign-out successful!');
     } catch (e) {
-      debugPrint('❌ Firebase sign-out error: $e');
+      debugPrint('Firebase sign-out error: $e');
       rethrow;
     }
 

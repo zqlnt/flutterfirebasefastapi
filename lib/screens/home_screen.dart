@@ -6,6 +6,8 @@ import '../widgets/auth_status_card.dart';
 import '../widgets/quick_actions_section.dart';
 import '../widgets/mock_data_section.dart';
 import '../widgets/database_data_section.dart';
+import '../widgets/individual_email_lookup_section.dart';
+import '../widgets/all_emails_section.dart';
 
 /// The main home screen displayed after successful authentication.
 /// 
@@ -82,6 +84,10 @@ class HomeScreen extends StatelessWidget {
                   const MockDataSection(),
                   const SizedBox(height: 32),
                   const DatabaseDataSection(),
+                  const SizedBox(height: 32),
+                  const IndividualEmailLookupSection(),
+                  const SizedBox(height: 32),
+                  const AllEmailsSection(),
                 ],
               ),
             ),
