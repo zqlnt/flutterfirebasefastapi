@@ -10,11 +10,19 @@ class AuthStatusCard extends StatelessWidget {
   
   /// The user's email address
   final String? userEmail;
+  
+  /// The authentication method used (Firebase or FastAPI)
+  final String? authMethod;
+  
+  /// The Bearer token for FastAPI authentication
+  final String? bearerToken;
 
   const AuthStatusCard({
     super.key,
     required this.userId,
     required this.userEmail,
+    this.authMethod,
+    this.bearerToken,
   });
 
   @override
@@ -60,12 +68,27 @@ class AuthStatusCard extends StatelessWidget {
 
   /// Builds all the status rows
   Widget _buildStatusRows() {
+    final isFirebase = authMethod == 'Firebase';
+    
     return Column(
       children: [
-        _buildStatusRow('Firebase Auth', true, 'Connected'),
+        _buildStatusRow(
+          'Authentication Method', 
+          true, 
+          authMethod ?? 'Unknown'
+        ),
+        if (isFirebase) ...[
+          _buildStatusRow('Firebase Auth', true, 'Connected'),
+          _buildStatusRow('Firebase Project', true, 'infinity-link-878fe'),
+        ] else ...[
+          _buildStatusRow('FastAPI Auth', true, 'Connected'),
+          _buildStatusRow('Server', true, 'mock-server-6yyu.onrender.com'),
+        ],
         _buildStatusRow('User ID', userId != null, userId ?? 'Not available'),
         _buildStatusRow('Email Verified', true, 'Verified'),
-        _buildStatusRow('Firebase Project', true, 'infinity-link-878fe'),
+        if (bearerToken != null) ...[
+          _buildStatusRow('Bearer Token', true, '${bearerToken!.substring(0, 20)}...'),
+        ],
         _buildStatusRow(
           'Provider', 
           userEmail?.contains('gmail.com') == true, 

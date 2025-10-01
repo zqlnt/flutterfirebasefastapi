@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/mock_api_service.dart';
+import '../services/fastapi_auth_service.dart';
 
 /// A section widget that displays database data fetching functionality.
 /// 
@@ -42,7 +44,7 @@ class DatabaseDataSection extends StatelessWidget {
             'Email Messages',
             Icons.email,
             Colors.blue,
-            () => _fetchDatabaseData(context, 'email_messages', () => MockApiService().getEmailMessages()),
+            () => _fetchDatabaseData(context, 'email_messages', () => _getMockApiWithToken(context).getEmailMessages()),
           ),
         ),
         const SizedBox(width: 16),
@@ -52,7 +54,7 @@ class DatabaseDataSection extends StatelessWidget {
             'Calendar Events',
             Icons.event,
             Colors.orange,
-            () => _fetchDatabaseData(context, 'calendar_events', () => MockApiService().getCalendarEvents()),
+            () => _fetchDatabaseData(context, 'calendar_events', () => _getMockApiWithToken(context).getCalendarEvents()),
           ),
         ),
       ],
@@ -110,13 +112,26 @@ class DatabaseDataSection extends StatelessWidget {
     );
   }
 
+  /// Gets MockApiService with Bearer token if available
+  MockApiService _getMockApiWithToken(BuildContext context) {
+    final mockApi = MockApiService();
+    
+    // Set Bearer token if FastAPI auth is active
+    final fastApiAuth = Provider.of<FastApiAuthService>(context, listen: false);
+    if (fastApiAuth.isAuthenticated && fastApiAuth.bearerToken != null) {
+      mockApi.setBearerToken(fastApiAuth.bearerToken);
+    }
+    
+    return mockApi;
+  }
+
   /// Fetches database data and shows results
   Future<void> _fetchDatabaseData(
     BuildContext context,
     String dataType,
     Future<Map<String, dynamic>> Function() fetchFunction,
   ) async {
-    final mockApi = MockApiService();
+    final mockApi = _getMockApiWithToken(context);
     
     // Show loading dialog
     showDialog(

@@ -17,6 +17,31 @@ class MockApiService {
   /// HTTP client configured with timeout settings
   final http.Client _client = http.Client();
   
+  /// Optional Bearer token for authenticated requests
+  String? _bearerToken;
+  
+  /// Set the Bearer token for authenticated requests
+  void setBearerToken(String? token) {
+    _bearerToken = token;
+  }
+  
+  /// Get the Bearer token
+  String? get bearerToken => _bearerToken;
+  
+  /// Get headers for API requests, including Bearer token if available
+  Map<String, String> _getHeaders() {
+    final headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    
+    if (_bearerToken != null) {
+      headers['Authorization'] = 'Bearer $_bearerToken';
+    }
+    
+    return headers;
+  }
+  
   /// Tests the connection to the mock API server.
   /// 
   /// Makes a simple GET request to the base URL to verify the server is reachable.
@@ -32,10 +57,7 @@ class MockApiService {
       final response = await _client
           .get(
             Uri.parse(baseUrl),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
+            headers: _getHeaders(),
           )
           .timeout(
             const Duration(seconds: 10),
@@ -87,10 +109,7 @@ class MockApiService {
       final response = await _client
           .get(
             Uri.parse(url),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
+            headers: _getHeaders(),
           )
           .timeout(const Duration(seconds: 10));
       
@@ -153,10 +172,7 @@ class MockApiService {
         final response = await _client
             .get(
               Uri.parse(url),
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
+              headers: _getHeaders(),
             )
             .timeout(const Duration(seconds: 5));
         
@@ -232,10 +248,7 @@ class MockApiService {
       final response = await _client
           .get(
             Uri.parse('$baseUrl/accounts'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
+            headers: _getHeaders(),
           )
           .timeout(const Duration(seconds: 10));
       
@@ -277,10 +290,7 @@ class MockApiService {
       final response = await _client
           .get(
             Uri.parse('$baseUrl/emails/inbox'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
+            headers: _getHeaders(),
           )
           .timeout(const Duration(seconds: 10));
       
@@ -315,10 +325,7 @@ class MockApiService {
       final response = await _client
           .get(
             Uri.parse('$baseUrl/db/email/messages'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
+            headers: _getHeaders(),
           )
           .timeout(const Duration(seconds: 10));
       
@@ -382,10 +389,7 @@ class MockApiService {
       final response = await _client
           .get(
             Uri.parse('$baseUrl/db/calendar/events'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
+            headers: _getHeaders(),
           )
           .timeout(const Duration(seconds: 10));
       
@@ -450,10 +454,7 @@ class MockApiService {
       final response = await _client
           .get(
             Uri.parse('$baseUrl/emails/$id'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
+            headers: _getHeaders(),
           )
           .timeout(const Duration(seconds: 10));
       
@@ -496,10 +497,7 @@ class MockApiService {
       final response = await _client
           .get(
             Uri.parse('$baseUrl/db/email/messages/$id'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
+            headers: _getHeaders(),
           )
           .timeout(const Duration(seconds: 10));
       

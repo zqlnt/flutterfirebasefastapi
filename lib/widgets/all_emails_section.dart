@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/mock_api_service.dart';
+import '../services/fastapi_auth_service.dart';
 
 /// Widget for fetching and displaying all emails with their IDs.
 /// 
@@ -21,9 +23,23 @@ class _AllEmailsSectionState extends State<AllEmailsSection> {
   int _totalCount = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _setBearerToken();
+  }
+
+  @override
   void dispose() {
     _apiService.dispose();
     super.dispose();
+  }
+
+  /// Sets Bearer token if FastAPI auth is active
+  void _setBearerToken() {
+    final fastApiAuth = Provider.of<FastApiAuthService>(context, listen: false);
+    if (fastApiAuth.isAuthenticated && fastApiAuth.bearerToken != null) {
+      _apiService.setBearerToken(fastApiAuth.bearerToken);
+    }
   }
 
   /// Fetch all emails from the database

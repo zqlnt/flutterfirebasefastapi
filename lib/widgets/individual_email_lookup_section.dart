@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import '../services/mock_api_service.dart';
+import '../services/fastapi_auth_service.dart';
 
 /// Widget for individual email lookup functionality.
 /// 
@@ -24,10 +26,24 @@ class _IndividualEmailLookupSectionState extends State<IndividualEmailLookupSect
   String? _currentFormat;
 
   @override
+  void initState() {
+    super.initState();
+    _setBearerToken();
+  }
+
+  @override
   void dispose() {
     _idController.dispose();
     _apiService.dispose();
     super.dispose();
+  }
+
+  /// Sets Bearer token if FastAPI auth is active
+  void _setBearerToken() {
+    final fastApiAuth = Provider.of<FastApiAuthService>(context, listen: false);
+    if (fastApiAuth.isAuthenticated && fastApiAuth.bearerToken != null) {
+      _apiService.setBearerToken(fastApiAuth.bearerToken);
+    }
   }
 
   /// Fetch email using string ID (inbox format)

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/mock_api_service.dart';
+import '../services/fastapi_auth_service.dart';
 
 /// A section widget that displays mock data fetching functionality.
 /// 
@@ -101,6 +103,12 @@ class MockDataSection extends StatelessWidget {
   /// Fetches accounts data with specialized display
   Future<void> _fetchAccountsData(BuildContext context) async {
     final mockApi = MockApiService();
+    
+    // Set Bearer token if FastAPI auth is active
+    final fastApiAuth = Provider.of<FastApiAuthService>(context, listen: false);
+    if (fastApiAuth.isAuthenticated && fastApiAuth.bearerToken != null) {
+      mockApi.setBearerToken(fastApiAuth.bearerToken);
+    }
     
     // Show loading dialog
     showDialog(
@@ -378,6 +386,12 @@ class MockDataSection extends StatelessWidget {
     Future<Map<String, dynamic>> Function() fetchFunction,
   ) async {
     final mockApi = MockApiService();
+    
+    // Set Bearer token if FastAPI auth is active
+    final fastApiAuth = Provider.of<FastApiAuthService>(context, listen: false);
+    if (fastApiAuth.isAuthenticated && fastApiAuth.bearerToken != null) {
+      mockApi.setBearerToken(fastApiAuth.bearerToken);
+    }
     
     // Show loading dialog
     showDialog(

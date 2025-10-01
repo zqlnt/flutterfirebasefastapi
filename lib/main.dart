@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'services/firebase_rest_auth_service.dart';
+import 'services/fastapi_auth_service.dart';
 import 'screens/auth_screen.dart';
 import 'screens/home_screen.dart';
 
@@ -35,8 +36,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => FirebaseRestAuthService(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => FirebaseRestAuthService()),
+        ChangeNotifierProvider(create: (context) => FastApiAuthService()),
+      ],
       child: MaterialApp(
         title: 'Infinity Link',
         theme: _buildAppTheme(),
@@ -77,15 +81,15 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<FirebaseRestAuthService>(
-      builder: (context, authService, child) {
+    return Consumer2<FirebaseRestAuthService, FastApiAuthService>(
+      builder: (context, firebaseAuth, fastApiAuth, child) {
         // Show loading screen while checking auth state
-        if (authService.isLoading) {
+        if (firebaseAuth.isLoading || fastApiAuth.isLoading) {
           return const LoadingScreen();
         }
 
-        // Show home screen if user is authenticated
-        if (authService.isAuthenticated) {
+        // Show home screen if user is authenticated with either service
+        if (firebaseAuth.isAuthenticated || fastApiAuth.isAuthenticated) {
           return const HomeScreen();
         }
 

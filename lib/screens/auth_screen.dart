@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/firebase_rest_auth_service.dart';
+import '../services/fastapi_auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -15,6 +16,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _passwordController = TextEditingController();
   bool _isSignUp = false;
   bool _obscurePassword = true;
+  bool _useFastAPI = false; // Toggle between Firebase and FastAPI auth
 
   @override
   void dispose() {
@@ -29,17 +31,37 @@ class _AuthScreenState extends State<AuthScreen> {
   /// and shows success or error messages to the user.
   Future<void> _handleAuth() async {
     if (!_formKey.currentState!.validate()) return;
-
-    final authService = Provider.of<FirebaseRestAuthService>(context, listen: false);
     
     try {
-      if (_isSignUp) {
-        await _handleSignUp(authService);
+      if (_useFastAPI) {
+        await _handleFastAPIAuth();
       } else {
-        await _handleSignIn(authService);
+        await _handleFirebaseAuth();
       }
     } catch (e) {
       _handleAuthError(e);
+    }
+  }
+  
+  /// Handles Firebase authentication
+  Future<void> _handleFirebaseAuth() async {
+    final authService = Provider.of<FirebaseRestAuthService>(context, listen: false);
+    
+    if (_isSignUp) {
+      await _handleSignUp(authService);
+    } else {
+      await _handleSignIn(authService);
+    }
+  }
+  
+  /// Handles FastAPI authentication
+  Future<void> _handleFastAPIAuth() async {
+    final authService = Provider.of<FastApiAuthService>(context, listen: false);
+    
+    if (_isSignUp) {
+      await _handleFastAPISignUp(authService);
+    } else {
+      await _handleFastAPISignIn(authService);
     }
   }
 
@@ -64,6 +86,30 @@ class _AuthScreenState extends State<AuthScreen> {
     
     if (mounted) {
       _showSuccessMessage('Signed in successfully!');
+    }
+  }
+  
+  /// Handles FastAPI sign in process
+  Future<void> _handleFastAPISignIn(FastApiAuthService authService) async {
+    await authService.signInWithFastAPI(
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
+    
+    if (mounted) {
+      _showSuccessMessage('Signed in successfully with FastAPI!');
+    }
+  }
+  
+  /// Handles FastAPI sign up process
+  Future<void> _handleFastAPISignUp(FastApiAuthService authService) async {
+    await authService.signUpWithFastAPI(
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
+    
+    if (mounted) {
+      _showSuccessMessage('Account created successfully with FastAPI!');
     }
   }
 
@@ -221,7 +267,94 @@ class _AuthScreenState extends State<AuthScreen> {
                             color: Colors.grey[600],
                           ),
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 24),
+                        
+                        // Authentication Method Toggle
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _useFastAPI = false),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: !_useFastAPI ? Colors.white : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: !_useFastAPI ? [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ] : null,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.security,
+                                          size: 20,
+                                          color: !_useFastAPI ? const Color(0xFF1976D2) : Colors.grey[600],
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Firebase Auth',
+                                          style: TextStyle(
+                                            fontWeight: !_useFastAPI ? FontWeight.bold : FontWeight.normal,
+                                            color: !_useFastAPI ? const Color(0xFF1976D2) : Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _useFastAPI = true),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: _useFastAPI ? Colors.white : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: _useFastAPI ? [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ] : null,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.api,
+                                          size: 20,
+                                          color: _useFastAPI ? const Color(0xFF1976D2) : Colors.grey[600],
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'FastAPI Auth',
+                                          style: TextStyle(
+                                            fontWeight: _useFastAPI ? FontWeight.bold : FontWeight.normal,
+                                            color: _useFastAPI ? const Color(0xFF1976D2) : Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
 
                         // Email Field
                         TextFormField(

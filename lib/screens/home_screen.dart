@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/firebase_rest_auth_service.dart';
+import '../services/fastapi_auth_service.dart';
 import '../widgets/welcome_card.dart';
 import '../widgets/auth_status_card.dart';
 import '../widgets/quick_actions_section.dart';
@@ -65,8 +66,13 @@ class HomeScreen extends StatelessWidget {
 
   /// Builds the main body content
   Widget _buildBody(BuildContext context) {
-    return Consumer<FirebaseRestAuthService>(
-      builder: (context, authService, child) {
+    return Consumer2<FirebaseRestAuthService, FastApiAuthService>(
+      builder: (context, firebaseAuth, fastApiAuth, child) {
+        // Determine which auth service is active
+        final isFirebaseAuth = firebaseAuth.isAuthenticated;
+        final isFastApiAuth = fastApiAuth.isAuthenticated;
+        final activeAuthService = isFirebaseAuth ? firebaseAuth : fastApiAuth;
+        
         return Container(
           decoration: _buildBackgroundDecoration(),
           child: SafeArea(
@@ -75,9 +81,9 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildWelcomeSection(authService),
+                  _buildWelcomeSection(activeAuthService, isFirebaseAuth),
                   const SizedBox(height: 24),
-                  _buildAuthStatusSection(authService),
+                  _buildAuthStatusSection(activeAuthService, isFirebaseAuth),
                   const SizedBox(height: 24),
                   const QuickActionsSection(),
                   const SizedBox(height: 32),
@@ -112,7 +118,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   /// Builds the welcome section with user info
-  Widget _buildWelcomeSection(FirebaseRestAuthService authService) {
+  Widget _buildWelcomeSection(dynamic authService, bool isFirebaseAuth) {
     return WelcomeCard(
       userEmail: authService.userEmail,
       displayName: authService.displayName,
@@ -120,15 +126,17 @@ class HomeScreen extends StatelessWidget {
   }
 
   /// Builds the authentication status section
-  Widget _buildAuthStatusSection(FirebaseRestAuthService authService) {
+  Widget _buildAuthStatusSection(dynamic authService, bool isFirebaseAuth) {
     return AuthStatusCard(
       userId: authService.userId,
       userEmail: authService.userEmail,
+      authMethod: isFirebaseAuth ? 'Firebase' : 'FastAPI',
+      bearerToken: isFirebaseAuth ? null : authService.bearerToken,
     );
   }
 
   /// Handles user sign out
-  Future<void> _handleSignOut(BuildContext context, FirebaseRestAuthService authService) async {
+  Future<void> _handleSignOut(BuildContext context, dynamic authService) async {
     try {
       await authService.signOut();
       if (context.mounted) {
